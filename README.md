@@ -70,9 +70,16 @@ pip install -e .
 
 | Option | Description |
 |--------|-------------|
-| `-d, --debug` | Enable debug logging |
-| `-p, --project_name` | Project name for vector database collection |
-| `--source_directory PATH` | Source directory to scan (default: current directory) |
+| `-v, --verbose` | Enable verbose output (INFO level) |
+| `-q, --quiet` | Enable quiet mode (WARNING level) |
+| `-p, --project_name` | Project name for vector database collection (defaults to source directory name) |
+| `-s, --source_directory PATH` | Source directory to scan (default: current directory) |
+
+### Project Name Inference
+
+If `--project_name` is not provided, the project name is automatically inferred from the source directory name. For example:
+- Scanning `/home/user/myproject` will use `myproject` as the collection name
+- Scanning the current directory (`.`) will use the current directory's name
 
 ### Commands
 
@@ -91,7 +98,7 @@ uv run main.py scan [--project_name NAME] [--source_directory PATH]
 uv run main.py scan
 
 # Scan specific directory with custom project name
-uv run main.py scan --project_name myproject --source_directory /path/to/code
+uv run main.py scan --project_name myproject -s /path/to/code
 ```
 
 #### query
@@ -110,6 +117,42 @@ uv run main.py query "How does authentication work?"
 
 # Query specific project
 uv run main.py query "What are the main components?" --project_name myproject
+
+# Query with custom source directory
+uv run main.py query "Where is the config?" -s /path/to/code
+```
+
+#### destroy
+
+Delete a collection from the vector database.
+
+```bash
+uv run main.py destroy [--project_name NAME] [--source_directory PATH]
+```
+
+**Examples:**
+
+```bash
+# Destroy current project's collection
+uv run main.py destroy
+
+# Destroy specific project's collection
+uv run main.py destroy --project_name myproject
+```
+
+#### list-collections
+
+List all collections in the vector database with their entry counts.
+
+```bash
+uv run main.py list-collections
+```
+
+**Example output:**
+
+```
+myproject: 150 entries
+another-project: 42 entries
 ```
 
 ## Configuration
