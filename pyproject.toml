@@ -1,3 +1,7 @@
+[build-system]
+requires = ["uv_build>=0.9.21,<0.10.0"]
+build-backend = "uv_build"
+
 [project]
 name = "agentic-code-rag"
 version = "0.1.0"
@@ -14,6 +18,9 @@ dependencies = [
     "rich>=14.2.0",
     "strands-agents>=1.20.0",
 ]
+
+[project.scripts]
+agentic-code-rag = "agentic_code_rag.main:cli"
 
 [dependency-groups]
 dev = [

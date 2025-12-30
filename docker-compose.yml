@@ -20,7 +20,7 @@ services:
       - qdrant-data:/qdrant/storage
     restart: unless-stopped
 
-  jaeger:
+  aspire-dashboard:
     image: mcr.microsoft.com/dotnet/aspire-dashboard:latest
     container_name: aspire-dashboard
     ports:

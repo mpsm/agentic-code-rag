@@ -1,0 +1,10 @@
+OLLAMA_HOST = "http://localhost:11434"
+OLLAMA_MODEL_ID = "qwen3-coder:30b"
+OLLAMA_NUM_CTX = 16000
+OLLAMA_EMBEDDING_MODEL = "qwen3-embedding"
+QDRANT_HOST = "http://localhost:6333"
+VECTOR_SIZE = 4096
+SCAN_EXTENSIONS = [".py", ".rs", ".ts"]
+QUERY_LIMIT = 5
+LIST_LIMIT = 100
+LIST_DESCRIPTION_PREVIEW = 200

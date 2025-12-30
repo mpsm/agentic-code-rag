@@ -4,44 +4,133 @@
 
 Code documentation tool that uses LLMs to generate descriptions and enable natural language queries.
 
-## Requirements
+## Quick Start
 
-- Python 3.12+
-- Docker Compose (for infrastructure)
+### 1. Start Infrastructure
 
-## Infrastructure
-
-This project includes Docker Compose configuration for required services:
-
-| Service | Port | Purpose |
-|---------|------|---------|
-| Ollama | 11434 | LLM model and embeddings |
-| Qdrant | 6333 | Vector database |
-
-### Starting Services
+Start required services (Ollama, Qdrant, and Aspire Dashboard):
 
 ```bash
 docker compose up -d
 ```
 
-### Stopping Services
+This starts:
+- **Ollama** (port 11434) - LLM model and embeddings
+- **Qdrant** (port 6333) - Vector database
+- **Aspire Dashboard** (port 18888) - OpenTelemetry observability dashboard
 
-```bash
-docker compose down
-```
-
-### Pulling Models
-
-After starting Ollama, pull the required models:
+Pull required models:
 
 ```bash
 docker exec ollama ollama pull qwen3-coder:30b
 docker exec ollama ollama pull qwen3-embedding
 ```
 
+### 2. Install and Run
+
+Run with `uv run`:
+
+```bash
+# Scan a codebase
+uv run agentic-code-rag scan -p myproject -s /path/to/code
+
+# Query the codebase
+uv run agentic-code-rag query -p myproject "How does authentication work?"
+```
+
+## Usage
+
+### Commands
+
+#### scan
+
+Scan source code and generate descriptions for embedding in the vector database.
+
+```bash
+agentic-code-rag scan [OPTIONS]
+```
+
+**Examples:**
+
+```bash
+# Scan current directory with default project name
+agentic-code-rag scan
+
+# Scan specific directory with custom project name
+agentic-code-rag scan -p myproject -s /path/to/code
+
+# With uv run
+uv run agentic-code-rag scan -p myproject -s /path/to/code
+```
+
+#### query
+
+Query the codebase using natural language.
+
+```bash
+agentic-code-rag query "your question here" [OPTIONS]
+```
+
+**Examples:**
+
+```bash
+# Query current project
+agentic-code-rag query "How does authentication work?"
+
+# Query specific project
+agentic-code-rag query "What are the main components?" -p myproject
+
+# With uv run
+uv run agentic-code-rag query "How does authentication work?" -p myproject
+```
+
+#### destroy
+
+Delete a collection from the vector database.
+
+```bash
+agentic-code-rag destroy [OPTIONS]
+```
+
+#### list-collections
+
+List all collections in the vector database with their entry counts.
+
+```bash
+agentic-code-rag list-collections
+```
+
+### Global Options
+
+| Option | Description |
+|--------|-------------|
+| `-v, --verbose` | Enable verbose output (INFO level) |
+| `-q, --quiet` | Enable quiet mode (WARNING level) |
+| `-d, --debug` | Enable debug mode (DEBUG level) |
+| `-p, --project_name TEXT` | Project name for vector database collection (defaults to source directory name) |
+| `-s, --source_directory PATH` | Source directory to scan (default: current directory) |
+
+**Note:** If `--project_name` is not provided, the project name is automatically inferred from the source directory name.
+
+## Requirements
+
+- Python 3.12+
+- Docker Compose (for infrastructure services)
+- uv (for dependency management)
+
 ## Developing
 
-This project uses [Poethepoet](https://poethepoet.nat-n.net/) for task automation.
+This project uses [Poethepoet](https://poethepoet.nat-n.net/) for task automation and `uv` for dependency management.
+
+### Setup
+
+Install dependencies including dev tools:
+
+```bash
+uv sync
+```
+
+### Available Tasks
 
 | Command | Description |
 |---------|-------------|
@@ -52,112 +141,22 @@ This project uses [Poethepoet](https://poethepoet.nat-n.net/) for task automatio
 | `poe build` | Build package |
 | `poe release` | Run lint, format-check, mypy, and build |
 
-### Installation for Development
+### Running During Development
+
+After `uv sync`, run via `uv run`:
 
 ```bash
-uv install --extra dev
+uv run agentic-code-rag scan -s /path/to/code
 ```
 
-## Installation
+### Code Style
 
-```bash
-pip install -e .
-```
-
-## Usage
-
-### Global Options
-
-| Option | Description |
-|--------|-------------|
-| `-v, --verbose` | Enable verbose output (INFO level) |
-| `-q, --quiet` | Enable quiet mode (WARNING level) |
-| `-p, --project_name` | Project name for vector database collection (defaults to source directory name) |
-| `-s, --source_directory PATH` | Source directory to scan (default: current directory) |
-
-### Project Name Inference
-
-If `--project_name` is not provided, the project name is automatically inferred from the source directory name. For example:
-- Scanning `/home/user/myproject` will use `myproject` as the collection name
-- Scanning the current directory (`.`) will use the current directory's name
-
-### Commands
-
-#### scan
-
-Scan source code and generate descriptions for embedding in the vector database.
-
-```bash
-uv run main.py scan [--project_name NAME] [--source_directory PATH]
-```
-
-**Examples:**
-
-```bash
-# Scan current directory with default project name
-uv run main.py scan
-
-# Scan specific directory with custom project name
-uv run main.py scan --project_name myproject -s /path/to/code
-```
-
-#### query
-
-Query the codebase using natural language.
-
-```bash
-uv run main.py query "your question here" [--project_name NAME] [--source_directory PATH]
-```
-
-**Examples:**
-
-```bash
-# Query current project
-uv run main.py query "How does authentication work?"
-
-# Query specific project
-uv run main.py query "What are the main components?" --project_name myproject
-
-# Query with custom source directory
-uv run main.py query "Where is the config?" -s /path/to/code
-```
-
-#### destroy
-
-Delete a collection from the vector database.
-
-```bash
-uv run main.py destroy [--project_name NAME] [--source_directory PATH]
-```
-
-**Examples:**
-
-```bash
-# Destroy current project's collection
-uv run main.py destroy
-
-# Destroy specific project's collection
-uv run main.py destroy --project_name myproject
-```
-
-#### list-collections
-
-List all collections in the vector database with their entry counts.
-
-```bash
-uv run main.py list-collections
-```
-
-**Example output:**
-
-```
-myproject: 150 entries
-another-project: 42 entries
-```
+- Format: `poe format`
+- Check: `poe format-check && poe lint && poe mypy`
 
 ## Configuration
 
-Default settings in `main.py`:
+Default settings in `src/agentic_code_rag/config.py`:
 - Ollama host: `http://localhost:11434`
 - Qdrant host: `http://localhost:6333`
 - Model: `qwen3-coder:30b`
