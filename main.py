@@ -14,8 +14,10 @@ from rich.logging import RichHandler
 from rich.markdown import Markdown
 from strands import Agent
 from strands.models.ollama import OllamaModel
+from strands.telemetry import StrandsTelemetry
 
 logger = logging.getLogger("agentic-code-rag")
+StrandsTelemetry().setup_otlp_exporter().setup_meter(enable_otlp_exporter=True)
 
 OLLAMA_HOST = "http://localhost:11434"
 OLLAMA_MODEL_ID = "qwen3-coder:30b"
@@ -199,6 +201,7 @@ def answer_question(query: str, knowledge: QdrantQueryResponse) -> str:
     "-v", "--verbose", is_flag=True, help="Enable verbose output (INFO level)"
 )
 @click.option("-q", "--quiet", is_flag=True, help="Enable quiet mode (WARNING level)")
+@click.option("-d", "--debug", is_flag=True, help="Enable debug mode (DEBUG level)")
 @click.option("--project_name", "-p", default=None, help="Set project name")
 @click.option(
     "-s",
@@ -207,7 +210,7 @@ def answer_question(query: str, knowledge: QdrantQueryResponse) -> str:
     default=".",
 )
 @click.pass_context
-def cli(ctx, verbose, quiet, project_name, source_directory):
+def cli(ctx, verbose, quiet, debug, project_name, source_directory):
     if verbose and quiet:
         raise click.BadParameter("Cannot use both -v/--verbose and -q/--quiet")
 
@@ -215,6 +218,8 @@ def cli(ctx, verbose, quiet, project_name, source_directory):
         log_level = "WARNING"
     elif verbose:
         log_level = "INFO"
+    elif debug:
+        log_level = "DEBUG"
     else:
         log_level = "ERROR"
 

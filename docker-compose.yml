@@ -20,5 +20,16 @@ services:
       - qdrant-data:/qdrant/storage
     restart: unless-stopped
 
+  jaeger:
+    image: mcr.microsoft.com/dotnet/aspire-dashboard:latest
+    container_name: aspire-dashboard
+    ports:
+      - "18888:18888"
+      - "4317:18889"
+      - "4318:18890"
+    environment:
+      - DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS=true
+    restart: unless-stopped
+
 volumes:
   qdrant-data:
